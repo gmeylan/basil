@@ -1,4 +1,4 @@
-package timer
+package cmd
 
 import (
 	"fmt"
@@ -9,8 +9,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var timerCmd = &cobra.Command{
-	Use:   "timer",
+var tomateCmd = &cobra.Command{
+	Use:   "tomate",
 	Short: "Hugo is a very fast static site generator",
 	Long: `A Fast and Flexible Static Site Generator built with
                   love by spf13 and friends in Go.
@@ -24,7 +24,7 @@ var timerCmd = &cobra.Command{
 		notifyChannel := make(chan bool)
 		go timer(minutes, seconds, notifyChannel)
 		go exit(close)
-		go notiy(notifyChannel, 2, close)
+		go notify(notifyChannel, 2, close)
 		select {
 		case <-time.After(minutes*time.Minute + seconds*time.Second):
 			close <- os.Interrupt
@@ -34,13 +34,6 @@ var timerCmd = &cobra.Command{
 			return
 		}
 	},
-}
-
-func Execute() {
-	if err := timerCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
 }
 
 func timer(minutes time.Duration, seconds time.Duration, notifyChannel chan (bool)) {
@@ -58,17 +51,18 @@ func timer(minutes time.Duration, seconds time.Duration, notifyChannel chan (boo
 	}
 }
 
-func notiy(n chan (bool), numberToNotify int, close chan (os.Signal)) {
-	select {
-	case <-close:
-		for i := 0; i < numberToNotify; i++ {
-			n <- false
-		}
-
+func notify(n chan (bool), numberToNotify int, close chan (os.Signal)) {
+	<-close
+	for i := 0; i < numberToNotify; i++ {
+		n <- false
 	}
+
 }
 
 func exit(close chan (os.Signal)) {
 	signal.Notify(close, os.Interrupt)
-	return
+}
+
+func init() {
+	rootCmd.AddCommand(tomateCmd)
 }

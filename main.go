@@ -1,7 +1,7 @@
 package main
 
-import "example.com/basil/timer"
+import "example.com/basil/cmd"
 
 func main() {
-	timer.Execute()
+	cmd.Execute()
 }
